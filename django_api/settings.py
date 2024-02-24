@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',
-    'employee',
+    'administration',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +59,7 @@ MIDDLEWARE = [
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
     'http://localhost:8081',
+    'http://localhost:8082',
 ]
 
 ROOT_URLCONF = 'django_api.urls'

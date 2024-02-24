@@ -4,8 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from employee.models import Departments, Employees, Products
-from employee.serializers import EmployeeSerializer, ProductSerializer, DepartmentSerializer
+from administration.models import Departments, Employees, Products
+from administration.serializers import EmployeeSerializer, ProductSerializer, DepartmentSerializer
 
 from django.core.files.storage import default_storage
 
@@ -51,14 +51,14 @@ def productApi(request,id=0):
         return JsonResponse("Failed to Add",safe=False)
     elif request.method=='PUT':
         product_data=JSONParser().parse(request)
-        product=Products.objects.get(ProductId=product_data['EmployeeId'])
+        product=Products.objects.get(product_id=product_data['product_id'])
         products_serializer=ProductSerializer(product,data=product_data)
         if products_serializer.is_valid():
             products_serializer.save()
             return JsonResponse("Updated Successfully",safe=False)
         return JsonResponse("Failed to Update")
     elif request.method=='DELETE':
-        product=Products.objects.get(ProductId=id)
+        product=Products.objects.get(product_id=id)
         product.delete()
         return JsonResponse("Deleted Successfully",safe=False)
 
