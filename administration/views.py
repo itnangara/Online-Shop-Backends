@@ -9,6 +9,10 @@ from administration.serializers import EmployeeSerializer, ProductSerializer, De
 
 from django.core.files.storage import default_storage
 
+# ITN: custom logging
+import logging
+logger = logging.getLogger(__name__)
+
 # Create your views here.
 @csrf_exempt
 def employeeApi(request,id=0):
@@ -92,5 +96,16 @@ def departmentApi(request,id=0):
 @csrf_exempt
 def SaveFile(request):
     file=request.FILES['file']
-    file_name=default_storage.save(file.name,file)
-    return JsonResponse(file_name,safe=False)
+    # Check if a file with the same name already exists
+    print("file name py: ", file.name)
+    if default_storage.exists(file.name):
+        print("file exists:")
+        return JsonResponse({"error": "File with the same name already exists"},safe=False, status=403)
+    else:
+        file_name=default_storage.save(file.name,file)
+        print("file dos not exist")
+        if file_name:
+            return JsonResponse(file_name, safe=False, status=200)
+        else:
+            return JsonResponse({"error": "File failed to save"}, safe=False, status=400)
+    

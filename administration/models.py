@@ -7,7 +7,7 @@ class Employees(models.Model):
     EmployeeName = models.CharField(max_length=500)
     Department = models.CharField(max_length=500)
     DateOfJoining = models.DateField()
-    PhotoFileName = models.CharField(max_length=500)
+    Image = models.CharField(max_length=500)
 
 class Products(models.Model):
     # Defining fields for the Products table

@@ -6,7 +6,7 @@ from administration.models import Employees, Products, Departments
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model=Employees
-        fields=('EmployeeId','EmployeeName','Department','DateOfJoining','PhotoFileName')
+        fields=('EmployeeId','EmployeeName','Department','DateOfJoining','Image')
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
