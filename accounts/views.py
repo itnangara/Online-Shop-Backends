@@ -4,14 +4,75 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from administration.models import Departments, Employees, Products
-from administration.serializers import EmployeeSerializer, ProductSerializer, DepartmentSerializer
+from accounts.models import User, Departments, Employees, Products
+from accounts.serializers import EmployeeSerializer, ProductSerializer, DepartmentSerializer
 
 from django.core.files.storage import default_storage
+
+#Auth
+from accounts.serializers import UserSerializer, TokenObtainPairWithEmailSerializer
+
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status
+from rest_framework.views import APIView
+
 
 # ITN: custom logging
 import logging
 logger = logging.getLogger(__name__)
+
+#Auth
+class RegisterView(APIView):
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+
+            refresh = RefreshToken.for_user(user)
+            response_data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ObtainTokenPairWithEmailView(TokenObtainPairView):
+    serializer_class = TokenObtainPairWithEmailSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        # serializer = UserSerializer
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        })
 
 # Create your views here.
 @csrf_exempt
@@ -34,7 +95,7 @@ def employeeApi(request,id=0):
         if employees_serializer.is_valid():
             employees_serializer.save()
             return JsonResponse("Updated Successfully",safe=False)
-        return JsonResponse("Failed to Update")
+        return JsonResponse("Failed to Update",safe=False)
     elif request.method=='DELETE':
         employee=Employees.objects.get(EmployeeId=id)
         employee.delete()
@@ -60,7 +121,7 @@ def productApi(request,id=0):
         if products_serializer.is_valid():
             products_serializer.save()
             return JsonResponse("Updated Successfully",safe=False)
-        return JsonResponse("Failed to Update")
+        return JsonResponse("Failed to Update",safe=False)
     elif request.method=='DELETE':
         product=Products.objects.get(product_id=id)
         product.delete()

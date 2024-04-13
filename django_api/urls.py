@@ -17,8 +17,42 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
 
+#Auth
+from rest_framework_simplejwt.views import TokenVerifyView
+# from rest_framework_simplejwt import views as jwt_views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+# api_urlpatterns = [ #Auth
+#     path('accounts/', include('rest_registration.api.urls')),
+# ]
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('administration.urls')),
+    path('', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    
+    #Auth
+    # path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include('rest_registration.api.urls')),
+    
+    #path('api/v1/', include(api_urlpatterns)),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # path('register/', UserCreate.as_view(), name='register'),
+    # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
+
+#Auth
+# REST_REGISTRATION = {
+#     'REGISTER_VERIFICATION_ENABLED': False,
+#     'REGISTER_EMAIL_VERIFICATION_ENABLED': False,
+#     'RESET_PASSWORD_VERIFICATION_ENABLED': False,
+# }

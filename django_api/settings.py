@@ -13,6 +13,17 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
+# Task - Auth
+from datetime import timedelta
+
+AUTH_USER_MODEL = 'accounts.User'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'employee.backends.EmailBackend',
+]
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL='/Photos/'
@@ -41,8 +52,40 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',
-    'administration',
+    'accounts',
+
+    # Task - Auth
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',    
+    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+SIMPLE_JWT = {
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # 'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    'ROTATE_REFRESH_TOKEN': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,12 +97,47 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'corsheaders.middleware.CorsMiddleware',
+
+    # Task - Auth
+    'django.middleware.csrf.CsrfViewMiddleware',
+
+    #  'djangorestframework_simplejwt.middleware.JWTMiddleware',
+    #  'rest_framework_simplejwt.middleware.JWTMiddleware',
 ]
+
+# CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:8080',
     'http://localhost:8081',
     'http://localhost:8082',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+    'http://localhost:8081',
+]
+
+# Task Auth: This also is used by other modules apart from just Auth
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS'
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 ROOT_URLCONF = 'django_api.urls'
@@ -90,7 +168,7 @@ WSGI_APPLICATION = 'django_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'kidszonesa',
+        'NAME': 'online-shop',
         'USER': 'postgres',
         'PASSWORD': 'pass',
         'HOST': 'localhost',
