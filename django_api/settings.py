@@ -20,7 +20,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'employee.backends.EmailBackend',
+    'accounts.backends.EmailBackend',
 ]
 
 
@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -113,9 +113,11 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8082',
 ]
 
-CORS_ALLOWED_ORIGINS = [
+# Temporary Config
+CORS_ALLOWED_ORIGINS = [ 
     'http://localhost:8080',
     'http://localhost:8081',
+    "http://localhost:8082",
 ]
 
 # Task Auth: This also is used by other modules apart from just Auth

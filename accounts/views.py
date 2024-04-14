@@ -1,5 +1,4 @@
-from django.shortcuts import render
-
+#from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
@@ -10,7 +9,8 @@ from accounts.serializers import EmployeeSerializer, ProductSerializer, Departme
 from django.core.files.storage import default_storage
 
 #Auth
-from accounts.serializers import UserSerializer, TokenObtainPairWithEmailSerializer
+from rest_framework.exceptions import ValidationError
+from accounts.serializers import UserSerializer
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -20,41 +20,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.contrib.auth.decorators import login_required
 
-from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
-from rest_framework.views import APIView
-
 
 # ITN: custom logging
 import logging
 logger = logging.getLogger(__name__)
-
-#Auth
-class RegisterView(APIView):
-    serializer_class = UserSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            user = serializer.save()
-
-            refresh = RefreshToken.for_user(user)
-            response_data = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token)
-            }
-            return Response(response_data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ObtainTokenPairWithEmailView(TokenObtainPairView):
-    serializer_class = TokenObtainPairWithEmailSerializer
-
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -63,8 +35,12 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        # serializer = UserSerializer
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError as e:
+            print("Validation Error:", e)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         user = serializer.save()
 
         refresh = RefreshToken.for_user(user)
@@ -153,6 +129,10 @@ def departmentApi(request,id=0):
         department.delete()
         return JsonResponse("Deleted Successfully",safe=False)
 
+@csrf_exempt
+def registerAPI(request,id=0):
+    print("Welcome to registration")
+    return JsonResponse("registration View",safe=False)
 
 @csrf_exempt
 def SaveFile(request):
