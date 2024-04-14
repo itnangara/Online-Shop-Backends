@@ -5,6 +5,7 @@
     pip install django-cors-headers
     python -m pip install --upgrade pip
     pip install djangorestframework
+    pip install djangorestframework-simplejwt
     pip install psycopg2
 
 # Running the django project

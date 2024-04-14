@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
-# Task - Auth
+# Auth
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-# Auth
 class UserManager(BaseUserManager):
     def create_user(self, first_name, last_name, email, password=None, **extra_fields):
         if not email:
@@ -19,6 +18,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, first_name, last_name, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('date_joined', default=timezone.now)
         return self.create_user(first_name, last_name, email, password, **extra_fields)
 
 
@@ -40,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name']
+    REQUIRED_FIELDS = ['last_name']
 
 
     def __str__(self):
@@ -63,7 +64,6 @@ class Employees(models.Model):
     Image = models.CharField(max_length=500)
 
 class Products(models.Model):
-    # Defining fields for the Products table
     product_id = models.AutoField(primary_key=True)
     product_name = models.CharField(max_length=500)
     description = models.CharField(max_length=500)
